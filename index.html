@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexMente — Plataforma de Estudos por João Pedro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f19;
+      color: #f8fafc;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.78);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(99, 102, 241, 0.22);
+    }
+    .tab-active {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
+    }
+    input[type="range"] {
+      accent-color: #6366f1;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- Barra de Status Beta -->
+  <div class="bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-indigo-500/30 px-4 py-2 text-center text-xs sm:text-sm">
+    <span class="inline-flex items-center gap-2 font-medium text-indigo-200">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <strong>ApexMente v1.0 Beta (Em Desenvolvimento)</strong> — Idealizado por <span class="text-white font-bold underline decoration-indigo-400">João Pedro</span> para grupos de estudo do Ensino Médio.
+    </span>
+  </div>
+
+  <!-- Cabeçalho Principal -->
+  <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('inicio')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-extrabold text-xl shadow-lg shadow-indigo-500/30">
+          A
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">ApexMente</h1>
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold">Beta</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Por João Pedro • Estudos em Grupo</p>
+        </div>
+      </div>
+
+      <!-- Painel de XP e Cronômetro de Foco -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 bg-slate-900 border border-slate-700/80 px-3 py-1.5 rounded-xl text-xs">
+          <span class="text-amber-400 font-bold">⚡ <span id="xp-display">0</span> XP</span>
+          <span class="text-slate-600">|</span>
+          <span id="level-display" class="text-indigo-300 font-semibold">Nível 1</span>
+        </div>
+
+        <button onclick="toggleTimer()" id="timer-btn" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-xl text-xs font-mono-num text-emerald-400 transition" title="Cronômetro de Foco (25 min)">
+          <span>⏱️</span>
+          <span id="timer-display">25:00</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navegação -->
+    <nav class="max-w-6xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto">
+      <button onclick="switchTab('inicio')" id="nav-inicio" class="nav-btn tab-active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        🏠 Início & Planos
+      </button>
+      <button onclick="switchTab('pa')" id="nav-pa" class="nav-btn bg-slate-900/80 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        📈 Progressão Aritmética (Grátis)
+      </button>
+      <button onclick="switchTab('estatistica')" id="nav-estatistica" class="nav-btn bg-slate-900/80 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        📊 Média, Mediana e Moda (Grátis)
+      </button>
+      <button onclick="switchTab('treino')" id="nav-treino" class="nav-btn bg-slate-900/80 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        🎯 Simulado & Treino Rápido
+      </button>
+    </nav>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-1">
+
+    <!-- ABA 1: INÍCIO & PLANOS -->
+    <section id="tab-inicio" class="space-y-10">
+      <!-- Hero -->
+      <div class="glass-card rounded-3xl p-6 sm:p-10 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="max-w-2xl space-y-4">
+          <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+            ✨ Plataforma de Estudos Colaborativos
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+            Domine a Matemática do Ensino Médio com clareza e prática.
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Criado por <strong>João Pedro</strong> para reunir teoria direta ao ponto, simuladores visuais e exercícios comentados para você estudar sozinho ou com seu grupo de amigos.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="switchTab('pa')" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition">
+              Estudar P.A. Agora →
+            </button>
+            <button onclick="switchTab('estatistica')" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 transition">
+              Estudar Média, Mediana e Moda →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Planos de Acesso -->
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-xl font-extrabold text-white">Planos & Trilhas de Estudo</h3>
+          <p class="text-sm text-slate-400">Comece gratuitamente nos módulos fundamentais de Matemática ou confira o que vem por aí.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Plano Gratuito -->
+          <div class="glass-card rounded-2xl p-6 border-2 border-emerald-500/40 flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold">LIBERADO AGORA</span>
+                <span class="text-2xl font-extrabold text-white font-mono-num">R$ 0,00</span>
+              </div>
+              <h4 class="text-xl font-bold text-white">Passe Estudante Gratuito</h4>
+              <p class="text-xs sm:text-sm text-slate-300">Acesso completo e ilimitado aos módulos iniciais de Matemática, calculadoras interativas e simulados.</p>
+              <ul class="space-y-2 text-sm text-slate-200 pt-2">
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✔</span> Progressão Aritmética (Teoria + Simulador)</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✔</span> Média Simples, Ponderada, Mediana e Moda</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✔</span> Treino Relâmpago Infinito & Simulado</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✔</span> Compartilhamento de placar com amigos</li>
+              </ul>
+            </div>
+            <button onclick="switchTab('pa')" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition">
+              Acessar Conteúdo Gratuito
+            </button>
+          </div>
+
+          <!-- Plano Pro R$ 10 -->
+          <div class="glass-card rounded-2xl p-6 border border-purple-500/30 flex flex-col justify-between relative">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">EM BREVE • 1º E 2º ANO EM</span>
+                <span class="text-2xl font-extrabold text-white font-mono-num">R$ 10,00</span>
+              </div>
+              <h4 class="text-xl font-bold text-white">ApexMente Ensino Médio Pro</h4>
+              <p class="text-xs sm:text-sm text-slate-300">Trilha completa em desenvolvimento por João Pedro com todas as matérias do 1º e 2º ano do Ensino Médio.</p>
+              <ul class="space-y-2 text-sm text-slate-300 pt-2">
+                <li class="flex items-center gap-2"><span class="text-purple-400">🔒</span> <strong>Matemática:</strong> Funções (1º e 2º Grau), P.G. e Trigonometria</li>
+                <li class="flex items-center gap-2"><span class="text-purple-400">🔒</span> <strong>Física:</strong> Cinemática, Leis de Newton e Termologia</li>
+                <li class="flex items-center gap-2"><span class="text-purple-400">🔒</span> <strong>Química:</strong> Estrutura Atômica, Ligações e Estequiometria</li>
+                <li class="flex items-center gap-2"><span class="text-purple-400">🔒</span> <strong>Biologia & História:</strong> Citologia, Genética e Brasil Império</li>
+              </ul>
+            </div>
+            <button onclick="openWaitlistModal()" class="mt-6 w-full py-3 rounded-xl bg-purple-600/80 hover:bg-purple-600 text-white font-bold text-sm border border-purple-400/30 transition">
+              Entrar na Lista de Espera (R$ 10,00)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grade Curricular Completa -->
+      <div class="space-y-4">
+        <h3 class="text-xl font-extrabold text-white">Mapa de Matérias da Plataforma</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div onclick="switchTab('pa')" class="glass-card p-5 rounded-2xl cursor-pointer hover:border-indigo-400 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">📈</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Grátis</span>
+            </div>
+            <h4 class="font-bold text-white">Progressão Aritmética</h4>
+            <p class="text-xs text-slate-400 mt-1">Termo geral, razão, classificação e soma dos termos.</p>
+          </div>
+
+          <div onclick="switchTab('estatistica')" class="glass-card p-5 rounded-2xl cursor-pointer hover:border-indigo-400 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">📊</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Grátis</span>
+            </div>
+            <h4 class="font-bold text-white">Média, Mediana e Moda</h4>
+            <p class="text-xs text-slate-400 mt-1">Medidas de tendência central, média ponderada e análise de rol.</p>
+          </div>
+
+          <div onclick="openWaitlistModal()" class="glass-card p-5 rounded-2xl cursor-pointer opacity-80 hover:opacity-100 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">📐</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Pro • R$ 10</span>
+            </div>
+            <h4 class="font-bold text-white">Funções & P.G. (1º/2º Ano)</h4>
+            <p class="text-xs text-slate-400 mt-1">Função afim, quadrática, exponencial e progressão geométrica.</p>
+          </div>
+
+          <div onclick="openWaitlistModal()" class="glass-card p-5 rounded-2xl cursor-pointer opacity-80 hover:opacity-100 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">🚀</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Pro • R$ 10</span>
+            </div>
+            <h4 class="font-bold text-white">Física (1º e 2º Ano)</h4>
+            <p class="text-xs text-slate-400 mt-1">Mecânica, dinâmica, energia, calorimetria e óptica.</p>
+          </div>
+
+          <div onclick="openWaitlistModal()" class="glass-card p-5 rounded-2xl cursor-pointer opacity-80 hover:opacity-100 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">⚗️</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Pro • R$ 10</span>
+            </div>
+            <h4 class="font-bold text-white">Química (1º e 2º Ano)</h4>
+            <p class="text-xs text-slate-400 mt-1">Tabela periódica, funções inorgânicas, soluções e termoquímica.</p>
+          </div>
+
+          <div onclick="openWaitlistModal()" class="glass-card p-5 rounded-2xl cursor-pointer opacity-80 hover:opacity-100 transition">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-2xl">🧬</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Pro • R$ 10</span>
+            </div>
+            <h4 class="font-bold text-white">Biologia & Humanas</h4>
+            <p class="text-xs text-slate-400 mt-1">Ecologia, fisiologia, história moderna e geografia física.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 2: PROGRESSÃO ARITMÉTICA -->
+    <section id="tab-pa" class="hidden space-y-8">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Módulo Gratuito 01</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Progressão Aritmética (P.A.)</h2>
+        </div>
+        <button onclick="addXP(15, 'Revisou teoria de P.A.!')" class="px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition">
+          ✔ Marcar Teoria como Lida (+15 XP)
+        </button>
+      </div>
+
+      <!-- Cards de Teoria -->
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-indigo-300 text-base">1. O que é e Razão (r)</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            É toda sequência numérica em que cada termo, a partir do segundo, é igual ao anterior somado a uma constante chamada <strong>razão (r)</strong>.
+          </p>
+          <div class="bg-slate-900/90 p-3 rounded-xl font-mono-num text-xs text-indigo-200 border border-slate-800">
+            r = a₂ - a₁ = a₃ - a₂
+          </div>
+          <p class="text-xs text-slate-400">
+            • <strong>r &gt; 0:</strong> Crescente (2, 5, 8...)<br>
+            • <strong>r &lt; 0:</strong> Decrescente (10, 7, 4...)<br>
+            • <strong>r = 0:</strong> Constante (5, 5, 5...)
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-indigo-300 text-base">2. Termo Geral (aₙ)</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Permite descobrir qualquer termo da sequência sem precisar escrever todos os anteriores um por um.
+          </p>
+          <div class="bg-slate-900/90 p-3 rounded-xl font-mono-num text-sm text-center font-bold text-emerald-300 border border-slate-800">
+            aₙ = a₁ + (n - 1) · r
+          </div>
+          <p class="text-xs text-slate-400">
+            Onde <strong>a₁</strong> é o primeiro termo, <strong>n</strong> é a posição desejada e <strong>r</strong> é a razão.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-indigo-300 text-base">3. Soma dos Termos (Sₙ)</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Soma os <strong>n</strong> primeiros termos somando os extremos e multiplicando pela metade da quantidade de termos.
+          </p>
+          <div class="bg-slate-900/90 p-3 rounded-xl font-mono-num text-sm text-center font-bold text-amber-300 border border-slate-800">
+            Sₙ = ((a₁ + aₙ) · n) / 2
+          </div>
+          <p class="text-xs text-slate-400">
+            <strong>Propriedade útil:</strong> O termo do meio é sempre a média aritmética dos vizinhos: a₂ = (a₁ + a₃) / 2.
+          </p>
+        </div>
+      </div>
+
+      <!-- Simulador Visual Interativo de P.A. -->
+      <div class="glass-card p-6 rounded-3xl space-y-6">
+        <div>
+          <h3 class="text-lg font-extrabold text-white">🎛️ Laboratório Interativo de P.A.</h3>
+          <p class="text-xs sm:text-sm text-slate-400">Arraste os controles para ver a sequência, o gráfico de degraus e a resolução passo a passo mudarem em tempo real.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-6 bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-300">Primeiro Termo (a₁)</span>
+              <span id="pa-a1-val" class="text-indigo-400 font-mono-num">2</span>
+            </div>
+            <input type="range" id="pa-a1" min="-15" max="30" value="2" oninput="updatePA()" class="w-full">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-300">Razão (r)</span>
+              <span id="pa-r-val" class="text-emerald-400 font-mono-num">3</span>
+            </div>
+            <input type="range" id="pa-r" min="-10" max="15" value="3" oninput="updatePA()" class="w-full">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-300">Quantidade de Termos (n)</span>
+              <span id="pa-n-val" class="text-amber-400 font-mono-num">6</span>
+            </div>
+            <input type="range" id="pa-n" min="2" max="12" value="6" oninput="updatePA()" class="w-full">
+          </div>
+        </div>
+
+        <!-- Gráfico de Barras da P.A. -->
+        <div id="pa-chart" class="h-44 bg-slate-950/80 rounded-2xl p-4 border border-slate-800 flex items-end justify-around gap-2"></div>
+
+        <!-- Resultados e Passo a Passo -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <span class="text-xs font-bold text-slate-400 uppercase">Sequência Gerada (<span id="pa-type">Crescente</span>)</span>
+            <p id="pa-seq" class="font-mono-num text-sm sm:text-base text-white font-bold break-words"></p>
+            <div class="flex gap-4 pt-2 text-xs">
+              <span class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 font-mono-num font-bold">aₙ = <span id="pa-an-res">17</span></span>
+              <span class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 font-mono-num font-bold">Sₙ = <span id="pa-sn-res">57</span></span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-1.5 font-mono-num text-xs text-slate-300">
+            <span class="text-xs font-sans font-bold text-slate-400 uppercase block mb-1">Passo a Passo Automático</span>
+            <p id="pa-step1"></p>
+            <p id="pa-step2" class="text-emerald-300"></p>
+            <p id="pa-step3" class="text-amber-300"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: MÉDIA, MEDIANA E MODA -->
+    <section id="tab-estatistica" class="hidden space-y-8">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Módulo Gratuito 02</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Média, Mediana e Moda</h2>
+        </div>
+        <button onclick="addXP(15, 'Revisou Estatística Básica!')" class="px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition">
+          ✔ Marcar Teoria como Lida (+15 XP)
+        </button>
+      </div>
+
+      <!-- Cards de Teoria -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-indigo-300">1. Média Simples (x̄)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Soma todos os valores do conjunto e divide pela quantidade total de elementos.
+          </p>
+          <div class="bg-slate-900 p-2.5 rounded-xl font-mono-num text-xs text-indigo-200 text-center">
+            x̄ = (x₁ + x₂ + ... + xₙ) / n
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-purple-300">2. Média Ponderada</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Multiplica cada valor pelo seu respectivo <strong>peso</strong> e divide pela soma dos pesos.
+          </p>
+          <div class="bg-slate-900 p-2.5 rounded-xl font-mono-num text-xs text-purple-200 text-center">
+            Mp = Σ(valor · peso) / Σ(pesos)
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-emerald-300">3. Mediana (Md)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Primeiro ordene os números (<strong>Rol</strong>)!<br>
+            • <strong>Ímpar:</strong> é o termo central.<br>
+            • <strong>Par:</strong> média dos 2 termos centrais.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl space-y-2">
+          <h3 class="font-bold text-amber-300">4. Moda (Mo)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            É o valor que aparece com <strong>maior frequência</strong>. Pode ser amodal (nenhum repete), unimodal ou bimodal.
+          </p>
+        </div>
+      </div>
+
+      <!-- Calculadora de Média, Mediana e Moda -->
+      <div class="glass-card p-6 rounded-3xl space-y-5">
+        <div>
+          <h3 class="text-lg font-extrabold text-white">📊 Analisador de Conjunto de Dados</h3>
+          <p class="text-xs sm:text-sm text-slate-400">Digite números separados por vírgula ou espaço (ex.: notas, idades, alturas) para ver o Rol ordenado, gráficos e os cálculos.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="text" id="stat-input" value="7, 8, 5, 10, 8, 6, 9" placeholder="Ex: 7, 8, 5, 10, 8" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono-num text-white focus:outline-none focus:border-indigo-500">
+          <button onclick="calculateStats()" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+            Calcular Tudo
+          </button>
+        </div>
+
+        <!-- Gráfico Visual com Linha da Média -->
+        <div class="relative bg-slate-950/80 rounded-2xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2 text-xs">
+            <span class="text-slate-400">Visualização dos Valores vs. Média</span>
+            <span class="text-indigo-400 font-mono-num font-bold">— Linha tracejada = Média (<span id="stat-mean-badge">7.57</span>)</span>
+          </div>
+          <div id="stat-chart" class="h-40 flex items-end justify-around gap-2 relative pt-4"></div>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-indigo-500/30">
+            <span class="text-xs text-slate-400 font-bold uppercase">Média Aritmética</span>
+            <p id="stat-mean" class="text-2xl font-extrabold text-indigo-400 font-mono-num mt-1">7.57</p>
+            <p id="stat-mean-detail" class="text-xs text-slate-400 mt-1 font-mono-num">53 / 7 = 7.57</p>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/30">
+            <span class="text-xs text-slate-400 font-bold uppercase">Mediana (Rol Ordenado)</span>
+            <p id="stat-median" class="text-2xl font-extrabold text-emerald-400 font-mono-num mt-1">8</p>
+            <p id="stat-rol" class="text-xs text-slate-400 mt-1 font-mono-num">Rol: [5, 6, 7, 8, 8, 9, 10]</p>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-amber-500/30">
+            <span class="text-xs text-slate-400 font-bold uppercase">Moda</span>
+            <p id="stat-mode" class="text-2xl font-extrabold text-amber-400 font-mono-num mt-1">8</p>
+            <p id="stat-mode-detail" class="text-xs text-slate-400 mt-1">Unimodal (aparece 2x)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculadora de Média Ponderada -->
+      <div class="glass-card p-6 rounded-3xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-extrabold text-white">⚖️ Calculadora de Média Ponderada</h3>
+            <p class="text-xs text-slate-400">Ideal para calcular médias escolares com pesos diferentes por trabalho ou avaliação.</p>
+          </div>
+          <button onclick="addWeightedRow()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-indigo-300 border border-slate-700">
+            + Adicionar Linha
+          </button>
+        </div>
+
+        <div id="weighted-rows" class="space-y-2">
+          <div class="grid grid-cols-2 gap-3">
+            <input type="number" step="0.1" value="8.0" oninput="calcWeighted()" placeholder="Nota / Valor" class="w-val bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+            <input type="number" step="0.1" value="2" oninput="calcWeighted()" placeholder="Peso" class="w-weight bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="number" step="0.1" value="6.5" oninput="calcWeighted()" placeholder="Nota / Valor" class="w-val bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+            <input type="number" step="0.1" value="3" oninput="calcWeighted()" placeholder="Peso" class="w-weight bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="number" step="0.1" value="9.0" oninput="calcWeighted()" placeholder="Nota / Valor" class="w-val bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+            <input type="number" step="0.1" value="5" oninput="calcWeighted()" placeholder="Peso" class="w-weight bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 p-4 rounded-2xl border border-purple-500/30 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-mono-num text-slate-300" id="weighted-formula">(8×2 + 6.5×3 + 9×5) / (2 + 3 + 5)</span>
+          <span class="text-lg font-extrabold text-purple-300 font-mono-num">Média Ponderada: <span id="weighted-res">8.05</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: TREINO RELÂMPAGO & SIMULADO -->
+    <section id="tab-treino" class="hidden space-y-8">
+      <!-- Treino Relâmpago Gerado Automaticamente -->
+      <div class="glass-card p-6 rounded-3xl space-y-4 border-2 border-indigo-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold text-amber-400 uppercase">⚡ Desafio Infinito (+20 XP por acerto)</span>
+            <h3 class="text-xl font-extrabold text-white">Treino Relâmpago</h3>
+          </div>
+          <button onclick="generateQuickChallenge()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-indigo-300 border border-slate-700 transition">
+            🔄 Novo Desafio
+          </button>
+        </div>
+
+        <p id="quick-question" class="text-base sm:text-lg font-semibold text-slate-100 bg-slate-900/80 p-4 rounded-2xl border border-slate-800"></p>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="number" step="any" id="quick-answer" placeholder="Digite sua resposta numérica..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono-num text-white focus:outline-none focus:border-indigo-500">
+          <button onclick="checkQuickChallenge()" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+            Verificar Resposta
+          </button>
+        </div>
+        <p id="quick-feedback" class="text-sm font-semibold hidden"></p>
+      </div>
+
+      <!-- Simulado Completo -->
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-xl font-extrabold text-white">📝 Simulado Geral (P.A. & Estatística)</h3>
+            <p class="text-xs sm:text-sm text-slate-400">Resolva as 6 questões abaixo e compartilhe seu resultado no grupo de estudos.</p>
+          </div>
+          <button onclick="shareScore()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition">
+            📲 Copiar Placar para o Grupo
+          </button>
+        </div>
+
+        <div id="quiz-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="border-t border-slate-800/80 bg-[#080b12] py-6 px-4 text-center text-xs text-slate-400 space-y-1">
+    <p class="font-bold text-slate-300">ApexMente • Plataforma de Estudos em Desenvolvimento</p>
+    <p>Criado por <span class="text-indigo-400 font-semibold">João Pedro</span> • Feito para aprender e evoluir em grupo.</p>
+  </footer>
+
+  <!-- Modal Lista de Espera Plano Pro -->
+  <div id="waitlist-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full rounded-3xl p-6 space-y-4 border border-purple-500/40">
+      <div class="flex justify-between items-center">
+        <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">ApexMente Pro • R$ 10,00</span>
+        <button onclick="closeWaitlistModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <h3 class="text-xl font-extrabold text-white">Matérias do 1º e 2º Ano do Ensino Médio</h3>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        João Pedro está preparando os módulos completos de <strong>Funções, P.G., Física, Química, Biologia e Humanas</strong> por apenas <strong>R$ 10,00</strong>.
+      </p>
+      <div class="space-y-3 pt-1">
+        <input type="text" id="waitlist-name" placeholder="Seu nome ou apelido" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white">
+        <button onclick="confirmWaitlist()" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition">
+          Garantir Aviso de Lançamento
+        </button>
+      </div>
+      <p id="waitlist-msg" class="text-xs text-emerald-400 font-semibold hidden"></p>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-indigo-600 text-white px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold transform translate-y-20 opacity-0 transition-all duration-300"></div>
+
+  <script>
+    // Sistema de XP e Nível
+    let xp = 0;
+    function addXP(amount, reason) {
+      xp += amount;
+      const level = Math.floor(xp / 50) + 1;
+      document.getElementById('xp-display').textContent = xp;
+      document.getElementById('level-display').textContent = `Nível ${level}`;
+      showToast(`+${amount} XP — ${reason}`);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2800);
+    }
+
+    // Navegação por Abas
+    function switchTab(tab) {
+      ['inicio', 'pa', 'estatistica', 'treino'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`nav-${t}`);
+        btn.classList.remove('tab-active');
+        btn.classList.add('bg-slate-900/80', 'text-slate-300');
+      });
+      document.getElementById(`tab-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-${tab}`);
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('bg-slate-900/80', 'text-slate-300');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Cronômetro Pomodoro
+    let timerSeconds = 25 * 60;
+    let timerRunning = false;
+    let timerInterval = null;
+    function toggleTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        showToast('Cronômetro pausado');
+      } else {
+        timerRunning = true;
+        showToast('Modo Foco ativado!');
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timer-display').textContent = `${m}:${s}`;
+          } else {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            addXP(30, 'Sessão de foco concluída!');
+            timerSeconds = 25 * 60;
+          }
+        }, 1000);
+      }
+    }
+
+    // Simulador de P.A.
+    function updatePA() {
+      const a1 = Number(document.getElementById('pa-a1').value);
+      const r = Number(document.getElementById('pa-r').value);
+      const n = Number(document.getElementById('pa-n').value);
+
+      document.getElementById('pa-a1-val').textContent = a1;
+      document.getElementById('pa-r-val').textContent = r;
+      document.getElementById('pa-n-val').textContent = n;
+
+      const terms = [];
+      for (let i = 0; i < n; i++) {
+        terms.push(a1 + i * r);
+      }
+      const an = terms[terms.length - 1];
+      const sn = ((a1 + an) * n) / 2;
+
+      document.getElementById('pa-type').textContent = r > 0 ? 'Crescente' : (r < 0 ? 'Decrescente' : 'Constante');
+      document.getElementById('pa-seq').textContent = `(${terms.join(', ')})`;
+      document.getElementById('pa-an-res').textContent = an;
+      document.getElementById('pa-sn-res').textContent = sn;
+
+      document.getElementById('pa-step1').textContent = `1) Fórmula: a${n} = ${a1} + (${n} - 1) · (${r})`;
+      document.getElementById('pa-step2').textContent = `2) Termo Geral: a${n} = ${a1} + ${(n - 1) * r} = ${an}`;
+      document.getElementById('pa-step3').textContent = `3) Soma: S${n} = ((${a1} + ${an}) · ${n}) / 2 = ${sn}`;
+
+      // Renderizar Gráfico de Barras
+      const chart = document.getElementById('pa-chart');
+      chart.innerHTML = '';
+      const maxAbs = Math.max(...terms.map(Math.abs), 1);
+      terms.forEach((val, idx) => {
+        const heightPct = Math.max(14, Math.round((Math.abs(val) / maxAbs) * 85));
+        const barColor = val >= 0 ? 'from-indigo-500 to-purple-500' : 'from-rose-500 to-amber-500';
+        chart.innerHTML += `
+          <div class="flex flex-col items-center flex-1 h-full justify-end">
+            <span class="text-[11px] font-mono-num font-bold text-slate-200 mb-1">${val}</span>
+            <div style="height: ${heightPct}%" class="w-full max-w-[36px] rounded-t-lg bg-gradient-to-t ${barColor} transition-all duration-200"></div>
+            <span class="text-[10px] text-slate-400 mt-1 font-mono-num">a${idx + 1}</span>
+          </div>
+        `;
+      });
+    }
+
+    // Calculadora de Estatística
+    function calculateStats() {
+      const raw = document.getElementById('stat-input').value;
+      const nums = raw.split(/[\s,;]+/).map(Number).filter(v => !isNaN(v));
+      if (nums.length === 0) return;
+
+      const sum = nums.reduce((a, b) => a + b, 0);
+      const mean = sum / nums.length;
+      const sorted = [...nums].sort((a, b) => a - b);
+
+      let median;
+      const mid = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 1) {
+        median = sorted[mid];
+      } else {
+        median = (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+
+      const freq = {};
+      let maxFreq = 0;
+      sorted.forEach(num => {
+        freq[num] = (freq[num] || 0) + 1;
+        if (freq[num] > maxFreq) maxFreq = freq[num];
+      });
+
+      let modeText = 'Amodal';
+      let modeDetail = 'Nenhum valor se repete';
+      if (maxFreq > 1) {
+        const modes = Object.keys(freq).filter(k => freq[k] === maxFreq);
+        modeText = modes.join(', ');
+        modeDetail = `${modes.length === 1 ? 'Unimodal' : 'Multimodal'} (aparece ${maxFreq}x)`;
+      }
+
+      const meanFormatted = Number.isInteger(mean) ? mean : mean.toFixed(2);
+      document.getElementById('stat-mean').textContent = meanFormatted;
+      document.getElementById('stat-mean-badge').textContent = meanFormatted;
+      document.getElementById('stat-mean-detail').textContent = `${sum} / ${nums.length} = ${meanFormatted}`;
+      document.getElementById('stat-median').textContent = median;
+      document.getElementById('stat-rol').textContent = `Rol: [${sorted.join(', ')}]`;
+      document.getElementById('stat-mode').textContent = modeText;
+      document.getElementById('stat-mode-detail').textContent = modeDetail;
+
+      // Gráfico com linha da média
+      const chart = document.getElementById('stat-chart');
+      chart.innerHTML = '';
+      const maxVal = Math.max(...nums, 1);
+      const meanLinePct = Math.min(95, Math.max(5, Math.round((mean / maxVal) * 85)));
+
+      chart.innerHTML += `
+        <div style="bottom: calc(${meanLinePct}% + 20px)" class="absolute left-0 right-0 border-t-2 border-dashed border-indigo-400 pointer-events-none z-10"></div>
+      `;
+
+      nums.slice(0, 14).forEach((val, i) => {
+        const h = Math.max(12, Math.round((Math.abs(val) / maxVal) * 85));
+        chart.innerHTML += `
+          <div class="flex flex-col items-center flex-1 h-full justify-end z-0">
+            <span class="text-[11px] font-mono-num font-bold text-slate-200 mb-1">${val}</span>
+            <div style="height: ${h}%" class="w-full max-w-[34px] rounded-t-lg bg-emerald-500/75 border border-emerald-400/50 transition-all"></div>
+            <span class="text-[10px] text-slate-400 mt-1 font-mono-num">#${i + 1}</span>
+          </div>
+        `;
+      });
+    }
+
+    // Média Ponderada
+    function addWeightedRow() {
+      const container = document.getElementById('weighted-rows');
+      const div = document.createElement('div');
+      div.className = 'grid grid-cols-2 gap-3';
+      div.innerHTML = `
+        <input type="number" step="0.1" value="7.0" oninput="calcWeighted()" placeholder="Nota / Valor" class="w-val bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+        <input type="number" step="0.1" value="1" oninput="calcWeighted()" placeholder="Peso" class="w-weight bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono-num text-white">
+      `;
+      container.appendChild(div);
+      calcWeighted();
+    }
+
+    function calcWeighted() {
+      const vals = [...document.querySelectorAll('.w-val')].map(i => Number(i.value) || 0);
+      const weights = [...document.querySelectorAll('.w-weight')].map(i => Number(i.value) || 0);
+      let num = 0, den = 0;
+      const parts = [];
+      for (let i = 0; i < vals.length; i++) {
+        num += vals[i] * weights[i];
+        den += weights[i];
+        parts.push(`${vals[i]}×${weights[i]}`);
+      }
+      const res = den > 0 ? (num / den).toFixed(2) : '0.00';
+      document.getElementById('weighted-formula').textContent = `(${parts.join(' + ')}) / (${weights.join(' + ')})`;
+      document.getElementById('weighted-res').textContent = res;
+    }
+
+    // Treino Relâmpago Infinito
+    let currentQuickAns = 0;
+    let currentQuickExp = '';
+    function generateQuickChallenge() {
+      const type = Math.floor(Math.random() * 4);
+      document.getElementById('quick-feedback').classList.add('hidden');
+      document.getElementById('quick-answer').value = '';
+
+      if (type === 0) {
+        const a1 = Math.floor(Math.random() * 10) + 1;
+        const r = Math.floor(Math.random() * 6) + 2;
+        const n = Math.floor(Math.random() * 7) + 4;
+        currentQuickAns = a1 + (n - 1) * r;
+        currentQuickExp = `a${n} = ${a1} + (${n} - 1) · ${r} = ${currentQuickAns}`;
+        document.getElementById('quick-question').textContent = `Em uma P.A. com primeiro termo a₁ = ${a1} e razão r = ${r}, qual é o ${n}º termo (a${n})?`;
+      } else if (type === 1) {
+        const nums = Array.from({ length: 5 }, () => Math.floor(Math.random() * 15) + 2);
+        const sorted = [...nums].sort((a, b) => a - b);
+        currentQuickAns = sorted[2];
+        currentQuickExp = `Ordenando (Rol): [${sorted.join(', ')}]. O termo central é ${currentQuickAns}.`;
+        document.getElementById('quick-question').textContent = `Qual é a MEDIANA do conjunto: { ${nums.join(', ')} }?`;
+      } else if (type === 2) {
+        const base = Math.floor(Math.random() * 10) + 4;
+        const nums = [base - 2, base, base + 2, base + 4];
+        currentQuickAns = (nums.reduce((a, b) => a + b, 0)) / 4;
+        currentQuickExp = `Soma = ${nums.reduce((a, b) => a + b, 0)}, dividido por 4 = ${currentQuickAns}.`;
+        document.getElementById('quick-question').textContent = `Calcule a MÉDIA ARITMÉTICA simples de: { ${nums.join(', ')} }`;
+      } else {
+        const target = Math.floor(Math.random() * 12) + 3;
+        const nums = [target, target - 1, target + 4, target, target + 2, target];
+        currentQuickAns = target;
+        currentQuickExp = `O número ${target} aparece 3 vezes, sendo o mais frequente.`;
+        document.getElementById('quick-question').textContent = `Qual é a MODA da sequência: { ${nums.join(', ')} }?`;
+      }
+    }
+
+    function checkQuickChallenge() {
+      const userVal = Number(document.getElementById('quick-answer').value);
+      const fb = document.getElementById('quick-feedback');
+      fb.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+      if (Math.abs(userVal - currentQuickAns) < 0.05) {
+        fb.classList.add('text-emerald-400');
+        fb.textContent = `✔ Excelente! Resposta certa: ${currentQuickAns}. (${currentQuickExp})`;
+        addXP(20, 'Acertou no Treino Relâmpago!');
+      } else {
+        fb.classList.add('text-rose-400');
+        fb.textContent = `✖ Quase! A resposta correta é ${currentQuickAns}. Resolução: ${currentQuickExp}`;
+      }
+    }
+
+    // Simulado de 6 Questões
+    const quizData = [
+      {
+        q: '1. (P.A.) Qual é o 10º termo da Progressão Aritmética (3, 7, 11, 15, ...)?',
+        options: ['35', '39', '43', '40'],
+        ans: 1,
+        exp: 'Temos a₁ = 3 e r = 7 - 3 = 4. Aplicando a₁₀ = 3 + (10 - 1)·4 = 3 + 36 = 39.'
+      },
+      {
+        q: '2. (P.A.) Qual é a soma dos 8 primeiros termos da P.A. em que a₁ = 2 e a₈ = 23?',
+        options: ['100', '92', '108', '80'],
+        ans: 0,
+        exp: 'S₈ = ((a₁ + a₈) · 8) / 2 = ((2 + 23) · 8) / 2 = (25 · 8) / 2 = 100.'
+      },
+      {
+        q: '3. (Estatística) Um estudante tirou as notas 6, 8, 7 e 9. Qual foi sua média aritmética?',
+        options: ['7,0', '7,5', '8,0', '8,5'],
+        ans: 1,
+        exp: 'Soma = 6 + 8 + 7 + 9 = 30. Dividindo por 4 provas: 30 / 4 = 7,5.'
+      },
+      {
+        q: '4. (Mediana) Determine a mediana do conjunto de idades: { 15, 18, 14, 16, 20, 17 }.',
+        options: ['16', '17', '16,5', '15,5'],
+        ans: 2,
+        exp: 'Ordenando (Rol): {14, 15, 16, 17, 18, 20}. Como há 6 termos (par), fazemos a média dos dois centrais: (16 + 17) / 2 = 16,5.'
+      },
+      {
+        q: '5. (Moda) Em uma pesquisa sobre número de irmãos, as respostas foram: { 1, 2, 0, 2, 3, 1, 2, 4 }. Qual é a moda?',
+        options: ['1', '2', '3', 'Amodal'],
+        ans: 1,
+        exp: 'O número 2 aparece 3 vezes (maior frequência absoluta), portanto a moda é 2.'
+      },
+      {
+        q: '6. (Média Ponderada) Uma avaliação tem peso 2 (nota 6,0) e outra tem peso 3 (nota 9,0). Qual é a média ponderada?',
+        options: ['7,5', '7,8', '8,0', '8,2'],
+        ans: 1,
+        exp: 'Mp = (6·2 + 9·3) / (2 + 3) = (12 + 27) / 5 = 39 / 5 = 7,8.'
+      }
+    ];
+
+    let quizScore = 0;
+    const answeredSet = new Set();
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+      quizData.forEach((item, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'glass-card p-5 rounded-2xl space-y-3';
+        let optsHtml = item.options.map((opt, oIdx) => `
+          <button onclick="answerQuiz(${qIdx}, ${oIdx}, this)" class="q-opt-${qIdx} text-left px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sm text-slate-200 transition">
+            ${opt}
+          </button>
+        `).join('');
+
+        card.innerHTML = `
+          <p class="font-bold text-white text-sm sm:text-base">${item.q}</p>
+          <div class="grid sm:grid-cols-2 gap-2.5">${optsHtml}</div>
+          <p id="q-exp-${qIdx}" class="hidden text-xs bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-slate-300"></p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function answerQuiz(qIdx, oIdx, btn) {
+      if (answeredSet.has(qIdx)) return;
+      answeredSet.add(qIdx);
+
+      const item = quizData[qIdx];
+      const buttons = document.querySelectorAll(`.q-opt-${qIdx}`);
+      buttons.forEach((b, idx) => {
+        b.disabled = true;
+        if (idx === item.ans) {
+          b.classList.remove('bg-slate-900', 'border-slate-700');
+          b.classList.add('bg-emerald-600/30', 'border-emerald-400', 'text-emerald-200', 'font-bold');
+        }
+      });
+
+      const expEl = document.getElementById(`q-exp-${qIdx}`);
+      expEl.classList.remove('hidden');
+
+      if (oIdx === item.ans) {
+        quizScore++;
+        expEl.innerHTML = `<span class="text-emerald-400 font-bold">✔ Acertou!</span> ${item.exp}`;
+        addXP(25, `Questão ${qIdx + 1} correta!`);
+      } else {
+        btn.classList.remove('bg-slate-900', 'border-slate-700');
+        btn.classList.add('bg-rose-600/30', 'border-rose-400', 'text-rose-200');
+        expEl.innerHTML = `<span class="text-rose-400 font-bold">✖ Incorreto.</span> ${item.exp}`;
+      }
+    }
+
+    function shareScore() {
+      const text = `🚀 Meu resultado no ApexMente (por João Pedro):
+✅ Acertos no Simulado: ${quizScore}/${quizData.length}
+⚡ Pontuação Total: ${xp} XP
+Bora estudar P.A. e Estatística juntos!`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Placar copiado! Cole no WhatsApp do grupo.');
+      });
+    }
+
+    // Modal Lista de Espera
+    function openWaitlistModal() {
+      const modal = document.getElementById('waitlist-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    function closeWaitlistModal() {
+      const modal = document.getElementById('waitlist-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    function confirmWaitlist() {
+      const name = document.getElementById('waitlist-name').value.trim() || 'Estudante';
+      const msg = document.getElementById('waitlist-msg');
+      msg.textContent = `✔ Valeu, ${name}! Seu interesse no Plano Pro (R$ 10,00) foi registrado.`;
+      msg.classList.remove('hidden');
+    }
+
+    // Inicializar componentes
+    updatePA();
+    calculateStats();
+    calcWeighted();
+    generateQuickChallenge();
+    renderQuiz();
+  </script>
+</body>
+</html>
